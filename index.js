@@ -8,7 +8,7 @@ require('dotenv/config');
 app.use(bodyParser.json());
 
 const playerRoute = require('./routes/players');
-const teamRoute = require('./routes/teams');
+const teamRoute = require('./routes/Team/teams');
 app.use('/players', playerRoute);
 app.use('/teams', teamRoute);
 
