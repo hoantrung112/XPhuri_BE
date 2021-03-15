@@ -1,31 +1,47 @@
 const mongoose = require('mongoose');
+const crypto = require("crypto");
 
 const positionList = ["GK", "CB", "LB", "RB", "CM", "CAM", "CDM", "LW", "RW", "ST"];
 
 const PlayerSchema = new mongoose.Schema({
-    name: {
+    firstName: {
         type: String,
-        required: [true, "Player's name is required!"],
+        required: [true, "Player's first name is required!"],
     },
-    displayName: {
+    lastName: {
+        type: String,
+        required: [true, "Player's last name is required!"],
+    },
+    username: {
         type: String,
         trim: true,
-        required: [true, "Display name is required!"],
+        unique: [true, "This username has been used!"],
+        required: [true, "Username is required!"],
     },
     email: {
         type: String,
         lowercase: true,
         trim: true,
+        required: true,
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email address!'],
         unique: [true, "This email has been used!"],
     },
     phone: {
         type: String,
-        unique: [true, "This phone number has been used!"],
+        sparse: true,
+    },
+    hash: {
+        type: String,
+        required: true,
+    },
+    salt: {
+        type: String,
+        required: true,
     },
     place: {
         // District
         type: String,
+        sparse: true,
     },
     isActivated: {
         type: Boolean,
@@ -35,16 +51,15 @@ const PlayerSchema = new mongoose.Schema({
         main: {
             type: String,
             enum: positionList,
-            required: [true, "Main playing position is required!"],
         },
         secondary: [{
             type: String,
             enum: positionList,
-        }]
+        }],
     },
     dob: {
         type: Date,
-        default: Date.now,
+        sparse: true,
     },
     freeTime: {
         when: [{
@@ -55,17 +70,34 @@ const PlayerSchema = new mongoose.Schema({
     capability: {
         type: String,
         enum: ["Beginner", "Amateur", "Intermediate", "Good", "Semi-professional", "Top"],
+        sparse: true,
     },
     teams: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Teams"
+        ref: "Teams",
+        sparse: true,
     }],
     request: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Teams'
+        ref: 'Teams',
+        sparse: true,
     }],
 
 });
 
+PlayerSchema.methods.generatePassword = function (password) {
+    this.salt = crypto.randomBytes(128).toString("base64");
+    this.hash = crypto
+        .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+        .toString("hex");
+    console.log("salt: ", this.salt, "hash: ", this.hash);
+};
 
-module.exports = mongoose.model('Players', PlayerSchema);
+PlayerSchema.methods.isPasswordMatched = function (password) {
+    const hash = crypto
+        .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+        .toString("hex");
+    return hash === this.hash;
+};
+
+module.exports = mongoose.model('Player', PlayerSchema);

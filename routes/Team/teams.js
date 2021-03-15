@@ -1,8 +1,8 @@
 const express = require('express');
 const { model, Schema } = require('mongoose');
 const router = express.Router();
-const Team = require('../models/Team');
-const Player = require('../models/Player');
+const Team = require('../../models/Team');
+const Player = require('../../models/Player');
 
 
 // Get all teams

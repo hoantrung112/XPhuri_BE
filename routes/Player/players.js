@@ -1,7 +1,7 @@
 const express = require('express');
 const { Mongoose } = require('mongoose');
 const router = express.Router();
-const Player = require('../models/Player');
+const Player = require('../../models/Player');
 
 // Get all players
 router.get('/', async (req, res) => {
@@ -19,26 +19,17 @@ router.get('/:PlayerId', async (req, res) => {
         const player = await Player.findById(req.params.PlayerId);
         res.json(player);
     } catch (err) {
-        res.json({ message: err });
+        res.json({ errorMessage: err });
     }
 })
-
-//Get some
-// router.get('/house/:houseName', async (req, res) => {
-//     try {
-//         const chars = await Player.find({ house: req.params.houseName });
-//         res.json(chars);
-//     } catch (err) {
-//         res.json({ message: err });
-//     }
-// })
 
 // Post one new
 router.post('/', (req, res) => {
 
     const newPlayer = new Player({
-        name: req.body.name,
-        displayName: req.body.displayName.replace(/\s+/g, ''),
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        username: req.body.username,
         email: req.body.email,
         phone: req.body.phone,
         place: req.body.place,
@@ -52,7 +43,7 @@ router.post('/', (req, res) => {
             res.json(data);
         })
         .catch(err => {
-            res.json({ message: err });
+            res.json({ errorMessage: err });
         });
 })
 
@@ -63,7 +54,7 @@ router.delete('/:PlayerId', async (req, res) => {
         res.json(removedPlayer);
     }
     catch (err) {
-        res.json({ message: err });
+        res.json({ errorMessage: err });
     }
 })
 
@@ -71,8 +62,9 @@ router.delete('/:PlayerId', async (req, res) => {
 router.patch('/:PlayerId', async (req, res) => {
     try {
         const update = {};
-        if (req.body.name != null) update.name = (req.body.name);
-        if (req.body.displayName != null) update.displayName = (req.body.displayName);
+        if (req.body.firstName != null) update.firstName = (req.body.firstName);
+        if (req.body.lastName != null) update.lastName = (req.body.lastName);
+        if (req.body.username != null) update.username = (req.body.username);
         if (req.body.email != null) update.email = (req.body.email);
         if (req.body.phone != null) update.phone = (req.body.phone);
         if (req.body.place != null) update.place = (req.body.place);
@@ -87,10 +79,8 @@ router.patch('/:PlayerId', async (req, res) => {
         res.json(updatedPlayer);
     }
     catch (err) {
-        res.json({ message: err });
+        res.json({ errorMessage: err });
     }
 })
-
-
 
 module.exports = router;

@@ -1,14 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const app = express();
-const bodyParser = require('body-parser');
 const port = process.env.PORT || 5000;
 require('dotenv/config');
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors);
 
-const playerRoute = require('./routes/players');
-const teamRoute = require('./routes/teams');
+const homeRoute = require('./routes/Home/index');
+const authRoute = require('./routes/Auth/auth');
+const playerRoute = require('./routes/Player/players');
+const teamRoute = require('./routes/Team/teams');
+app.use('/home', homeRoute);
+app.use('/auth', authRoute);
 app.use('/players', playerRoute);
 app.use('/teams', teamRoute);
 
